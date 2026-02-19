@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 from typing import Annotated, Type
 
-from aioq3rcon import Client
+from aioq3rcon import Client, RCONError
 from loguru import logger
 from pydantic import AfterValidator, BeforeValidator
 from pydantic_settings import BaseSettings, CliSettingsSource, SettingsConfigDict
@@ -94,12 +94,19 @@ class RconApp(App):
         if settings.refresh_output:
             self.query_one('#response', RichLog).clear()
 
-        async with Client(settings.host, settings.port, settings.password) as client:
-            response = await client.send_command(
-                self.query_one('#command', Input).value
-            )
+        try:
+            async with Client(
+                settings.host, settings.port, settings.password
+            ) as client:
+                response = await client.send_command(
+                    self.query_one('#command', Input).value
+                )
+                self.query_one('#response', RichLog).write(
+                    self.remove_color_codes(response.removeprefix('print\n'))
+                )
+        except RCONError as e:
             self.query_one('#response', RichLog).write(
-                self.remove_color_codes(response.removeprefix('print\n'))
+                f'{type(e).__name__}: Unable to connect to server: is the server running and are the host, port, and password correct? ({e})'
             )
 
         self.query_one('#command', Input).value = ''
