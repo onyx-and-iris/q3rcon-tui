@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(
             '.env',
-            Path.home() / '.config' / 'rcon-tui' / 'config.env',
+            Path.home() / '.config' / 'q3rcon-tui' / 'config.env',
         ),
         env_file_encoding='utf-8',
         env_prefix='Q3RCON_TUI_',

@@ -44,7 +44,7 @@ q3rcon-tui --host=localhost --port=28960 --password=rconpassword
 
 Store and load from dotenv files located at:
 -   .env in the cwd
--   user home directory / .config / rcon-tui / config.env
+-   user home directory / .config / q3rcon-tui / config.env
 
 example .env:
 
