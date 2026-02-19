@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "q3rcon-tui"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = []
+authors = [{ name = "onyx-and-iris", email = "code@onyxandiris.online" }]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "aio-q3-rcon>=1.0.0",
+  "loguru>=0.7.3",
+  "pydantic-settings>=2.13.1",
+  "textual>=8.0.0",
+]
+
+[project.scripts]
+q3rcon-tui = "q3rcon_tui.tui:main"
+
+[project.urls]
+Documentation = "https://github.com/onyx-and-iris/q3rcon-tui#readme"
+Issues = "https://github.com/onyx-and-iris/q3rcon-tui/issues"
+Source = "https://github.com/onyx-and-iris/q3rcon-tui"
+
+[tool.hatch.version]
+path = "src/q3rcon_tui/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = ["mypy>=1.0.0"]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/q3rcon_tui tests}"
+
+[tool.coverage.run]
+source_pkgs = ["q3rcon_tui", "tests"]
+branch = true
+parallel = true
+omit = ["src/q3rcon_tui/__about__.py"]
+
+[tool.coverage.paths]
+q3rcon_tui = ["src/q3rcon_tui", "*/q3rcon-tui/src/q3rcon_tui"]
+tests = ["tests", "*/q3rcon-tui/tests"]
+
+[tool.coverage.report]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
