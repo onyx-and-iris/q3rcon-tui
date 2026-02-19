@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "q3rcon-tui"
 dynamic = ["version"]
-description = ''
+description = 'A terminal user interface for managing Q3 compatible servers using RCON.'
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
