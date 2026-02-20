@@ -61,6 +61,11 @@ Q3RCON_TUI_RAW=false
 Q3RCON_TUI_APPEND=false
 ```
 
+## Special Thanks
+
+- [lapetus-11](https://github.com/Iapetus-11) for writing the [aio-q3-rcon](https://github.com/Iapetus-11/aio-q3-rcon) package.
+- The developers at [Textualize](https://github.com/Textualize) for writing the [textual](https://github.com/Textualize/textual) package.
+
 ## License
 
 `q3rcon-tui` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
