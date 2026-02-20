@@ -1,8 +1,11 @@
 import re
 
 from rich.table import Table
+from rich.text import Text
 
 from .settings import settings
+
+Renderable = Text | Table | str
 
 
 class Writable:
@@ -34,20 +37,22 @@ class Writable:
     def remove_color_codes(s: str) -> str:
         return Writable.RE_COLOR_CODES.sub('', s)
 
-    def parse(self, cmd, response: str) -> str:
+    def parse(self, cmd, response: str, style=None) -> Renderable:
         response = response.removeprefix('print\n')
         if settings.raw:
-            return response
+            return Text(response, style=style)
 
         match cmd:
             case 'status':
                 return self.status_table(response)
             case _:
-                match self.RE_CVAR.match(response):
-                    case None:
-                        return self.remove_color_codes(response)
-                    case m:
-                        return self.cvar_table(m)
+                if m := self.RE_CVAR.match(response):
+                    return self.cvar_table(m)
+                else:
+                    return Text(self.remove_color_codes(response), style=style)
+
+    def error(self, message: str) -> Text:
+        return Text(message, style='#c73d4b')
 
     def status_table(self, status_response: str) -> Table | str:
         table = Table(show_header=True, header_style='bold #88c0d0')
