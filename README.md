@@ -40,6 +40,11 @@ Pass `--host`, `--port` and `--password` as flags:
 q3rcon-tui --host=localhost --port=28960 --password=rconpassword
 ```
 
+Additional flags:
+
+-   `--raw`: Boolean flag, if set the RichLog will print raw responses withouth rendering tables.
+-   `--append`: Boolean flag, if set the RichLog output with append each response continuously. 
+
 #### Environment Variables
 
 Store and load from dotenv files located at:
@@ -48,11 +53,12 @@ Store and load from dotenv files located at:
 
 example .env:
 
-```bash
+```env
 Q3RCON_TUI_HOST=localhost
 Q3RCON_TUI_PORT=28960
 Q3RCON_TUI_PASSWORD=rconpassword
-Q3RCON_TUI_REFRESH_OUTPUT=true
+Q3RCON_TUI_RAW=false
+Q3RCON_TUI_APPEND=false
 ```
 
 ## License
