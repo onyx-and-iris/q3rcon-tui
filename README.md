@@ -43,7 +43,9 @@ q3rcon-tui --host=localhost --port=28960 --password=rconpassword
 Additional flags:
 
 -   `--raw`: Boolean flag, if set the RichLog will print raw responses without rendering tables.
--   `--append`: Boolean flag, if set the RichLog output with append each response continuously. 
+-   `--append`: Boolean flag, if set the RichLog output with append each response continuously.
+-   `--version`: Print the version of the TUI.
+-   `--help`: Print the help message.
 
 #### Environment Variables
 
