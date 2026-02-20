@@ -26,6 +26,10 @@ class RconApp(App):
         )
 
     async def on_key(self, event) -> None:
+        # prevent keypresses from ConfigScreen from triggering actions in RconApp
+        if self.screen and isinstance(self.screen, ConfigScreen):
+            return
+
         match event.key:
             case 'enter' if self.query_one('#command', Input).has_focus:
                 self.query_one('#send', Button).press()
@@ -64,9 +68,14 @@ class RconApp(App):
                 self.query_one('#response', RichLog).write(
                     self.writable.parse(cmd, response)
                 )
-        except RCONError as e:
+        except RCONError:
+            output = (
+                'Unable to execute command.',
+                'It may be due to a map change or a server restart.',
+                'If the problem persists, please check your connection settings and ensure the server is running.',
+            )
             self.query_one('#response', RichLog).write(
-                f'{type(e).__name__}: Unable to connect to server: is the server running and are the host, port, and password correct? ({e})'
+                self.writable.error('\n'.join(output))
             )
 
         self.query_one('#command', Input).value = ''
