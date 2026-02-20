@@ -51,14 +51,15 @@ class RconApp(App):
         if not settings.append:
             self.query_one('#response', RichLog).clear()
 
+        cmd = self.query_one('#command', Input).value.strip()
+        if not cmd:
+            self.app.bell()
+            return
+
         try:
             async with Client(
                 settings.host, settings.port, settings.password
             ) as client:
-                cmd = self.query_one('#command', Input).value.strip()
-                if not cmd:
-                    self.app.bell()
-                    return
                 response = await client.send_command(cmd)
                 self.query_one('#response', RichLog).write(
                     self.writable.parse(cmd, response)
