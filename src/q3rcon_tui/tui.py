@@ -70,7 +70,7 @@ class RconApp(App):
                 )
         except RCONError:
             output = (
-                f'Unable to execute command {cmd}. ',
+                f'Unable to execute command {cmd}.',
                 'It may be due to a map change or a server restart.',
                 'If the problem persists, please check your connection settings and ensure the server is running.',
             )
