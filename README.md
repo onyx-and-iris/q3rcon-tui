@@ -43,6 +43,8 @@ q3rcon-tui --host=localhost --port=28960 --password=rconpassword
 Additional flags:
 
 -   `--raw`: Boolean flag, if set the RichLog will print raw responses without rendering tables.
+-   `--min-status`: Boolean flag, if set the status command will print a minified table.
+    -   note, this will have no effect if in *raw* mode.
 -   `--append`: Boolean flag, if set the RichLog output will append each response continuously.
 -   `--version`: Print the version of the TUI.
 -   `--help`: Print the help message.
@@ -59,6 +61,7 @@ example .env:
 Q3RCON_TUI_HOST=localhost
 Q3RCON_TUI_PORT=28960
 Q3RCON_TUI_PASSWORD=rconpassword
+Q3RCON_TUI_MIN_STATUS=false
 Q3RCON_TUI_RAW=false
 Q3RCON_TUI_APPEND=false
 ```
