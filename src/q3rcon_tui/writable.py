@@ -10,6 +10,7 @@ Renderable = Text | Table | str
 
 class Writable:
     RE_COLOR_CODES = re.compile(r'\^[0-9]')
+    RE_MAP_FROM_STATUS = re.compile(r'^map: (?P<mapname>mp_[a-z_]+)$')
     RE_PLAYER_FROM_STATUS = re.compile(
         r'^\s*(?P<slot>[0-9]+)\s+'
         r'(?P<score>[0-9-]+)\s+'
@@ -62,32 +63,33 @@ class Writable:
         table.add_column('GUID', justify='center')
         table.add_column('Name', justify='center')
         table.add_column('Last', justify='center')
-        table.add_column('IP', justify='center')
-        table.add_column('Port', justify='center')
+        table.add_column('IP:Port', justify='center')
         table.add_column('QPort', justify='center')
         table.add_column('Rate', justify='center')
 
+        mapname = ''
         for line in status_response.splitlines():
-            match self.RE_PLAYER_FROM_STATUS.match(line):
-                case None:
-                    continue
-                case m:
-                    table.add_row(
-                        m.group('slot'),
-                        m.group('score'),
-                        m.group('ping'),
-                        m.group('guid'),
-                        self.remove_color_codes(m.group('name')),
-                        m.group('last'),
-                        m.group('ip'),
-                        m.group('port'),
-                        m.group('qport'),
-                        m.group('rate'),
-                    )
+            if m := self.RE_PLAYER_FROM_STATUS.match(line):
+                table.add_row(
+                    m.group('slot'),
+                    m.group('score'),
+                    m.group('ping'),
+                    m.group('guid'),
+                    self.remove_color_codes(m.group('name')),
+                    m.group('last'),
+                    f'{m.group("ip")}:{m.group("port")}',
+                    m.group('qport'),
+                    m.group('rate'),
+                )
+            elif m := self.RE_MAP_FROM_STATUS.match(line):
+                mapname = m.group('mapname')
 
+        out = Text(f'Map: {mapname}\n', style='bold #88c0d0')
         if len(table.rows) == 0:
-            return 'No players connected.'
-        return table
+            return out.append('No players connected', style='#c73d4b')
+        else:
+            table.title = out
+            return table
 
     def cvar_table(self, m: re.Match) -> Table:
         table = Table(show_header=True, header_style='bold #88c0d0')
