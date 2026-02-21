@@ -2,7 +2,12 @@ from pathlib import Path
 from typing import Annotated, Type
 
 from loguru import logger
-from pydantic import AfterValidator, BeforeValidator
+from pydantic import (
+    AfterValidator,
+    AliasChoices,
+    BeforeValidator,
+    Field,
+)
 from pydantic_settings import BaseSettings, CliSettingsSource, SettingsConfigDict
 
 from .__about__ import __version__ as version
@@ -26,6 +31,14 @@ class Settings(BaseSettings):
     port: int = 28960
     password: Annotated[str, AfterValidator(is_valid_password)] = ''
     append: bool = False
+    min_status: bool = Field(
+        default=False,
+        alias='min-status',
+        validation_alias=AliasChoices(
+            'min-status',
+            'Q3RCON_TUI_MIN_STATUS',
+        ),
+    )
     raw: bool = False
     version: Annotated[bool, BeforeValidator(version_callback)] = False
 
