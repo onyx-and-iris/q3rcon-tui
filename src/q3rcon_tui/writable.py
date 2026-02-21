@@ -27,11 +27,11 @@ class Writable:
     )
     RE_CVAR = re.compile(
         r'^["](?P<name>[a-z_]+)["]\sis[:]\s'
-        r'["](?P<value>.*?)\^7["]\s'
+        r'["](?P<value>.*?)["]\s'
         r'default[:]\s'
-        r'["](?P<default>.*?)\^7["]\s'
+        r'["](?P<default>.*?)["]\s'
         r'info[:]\s'
-        r'["](?P<info>.*?)\^7["]$'
+        r'["](?P<info>.*?)["]$'
     )
 
     @staticmethod
@@ -39,7 +39,7 @@ class Writable:
         return Writable.RE_COLOR_CODES.sub('', s)
 
     def parse(self, cmd, response: str, style=None) -> Renderable:
-        response = response.removeprefix('print\n')
+        response = self.remove_color_codes(response.removeprefix('print\n'))
         if settings.raw:
             return Text(response, style=style)
 
@@ -50,37 +50,57 @@ class Writable:
                 if m := self.RE_CVAR.match(response):
                     return self.cvar_table(m)
                 else:
-                    return Text(self.remove_color_codes(response), style=style)
+                    return Text(response, style=style)
 
     def error(self, message: str) -> Text:
         return Text(message, style='#c73d4b')
 
     def status_table(self, status_response: str) -> Table | str:
         table = Table(show_header=True, header_style='bold #88c0d0')
-        table.add_column('Slot', justify='center')
-        table.add_column('Score', justify='center')
-        table.add_column('Ping', justify='center')
-        table.add_column('GUID', justify='center')
-        table.add_column('Name', justify='center')
-        table.add_column('Last', justify='center')
-        table.add_column('IP:Port', justify='center')
-        table.add_column('QPort', justify='center')
-        table.add_column('Rate', justify='center')
+        columns = [
+            ('Slot', 'center'),
+            ('Score', 'center'),
+            ('Ping', 'center'),
+            ('GUID', 'center'),
+            ('Name', 'center'),
+        ]
+        for column, justify in columns:
+            table.add_column(column, justify=justify)
+        if not settings.min_status:
+            table.add_column('Last', justify='center')
+        if settings.min_status:
+            table.add_column('IP', justify='center')
+        else:
+            table.add_column('IP:Port', justify='center')
+        columns = [
+            ('QPort', 'center'),
+            ('Rate', 'center'),
+        ]
+        if not settings.min_status:
+            for column, justify in columns:
+                table.add_column(column, justify=justify)
 
         mapname = 'unable to parse map name'
         for line in status_response.splitlines():
             if m := self.RE_PLAYER_FROM_STATUS.match(line):
-                table.add_row(
+                name = m.group('name')
+                if name == '':
+                    name = '[no name]'
+                row = [
                     m.group('slot'),
                     m.group('score'),
                     m.group('ping'),
                     m.group('guid'),
-                    self.remove_color_codes(m.group('name')),
-                    m.group('last'),
-                    f'{m.group("ip")}:{m.group("port")}',
-                    m.group('qport'),
-                    m.group('rate'),
-                )
+                    name,
+                ]
+                if settings.min_status:
+                    row.append(m.group('ip'))
+                else:
+                    row.append(f'{m.group("ip")}:{m.group("port")}')
+                    row.append(m.group('last'))
+                    row.append(m.group('qport'))
+                    row.append(m.group('rate'))
+                table.add_row(*row)
             elif m := self.RE_MAP_FROM_STATUS.match(line):
                 mapname = m.group('mapname')
 
@@ -93,16 +113,20 @@ class Writable:
 
     def cvar_table(self, m: re.Match) -> Table:
         table = Table(show_header=True, header_style='bold #88c0d0')
-        table.add_column('Name', justify='center')
-        table.add_column('Value', justify='center')
-        table.add_column('Default', justify='center')
-        table.add_column('Info', justify='center')
+        columns = [
+            ('Name', 'center'),
+            ('Value', 'center'),
+            ('Default', 'center'),
+            ('Info', 'center'),
+        ]
+        for column, justify in columns:
+            table.add_column(column, justify=justify)
 
         table.add_row(
             m.group('name'),
-            self.remove_color_codes(m.group('value')),
-            self.remove_color_codes(m.group('default')),
-            self.remove_color_codes(m.group('info')),
+            m.group('value'),
+            m.group('default'),
+            m.group('info'),
         )
 
         return table
