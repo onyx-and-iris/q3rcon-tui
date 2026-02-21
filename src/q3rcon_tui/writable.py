@@ -67,7 +67,7 @@ class Writable:
         table.add_column('QPort', justify='center')
         table.add_column('Rate', justify='center')
 
-        mapname = ''
+        mapname = 'unable to parse map name'
         for line in status_response.splitlines():
             if m := self.RE_PLAYER_FROM_STATUS.match(line):
                 table.add_row(
