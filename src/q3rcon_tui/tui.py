@@ -37,21 +37,27 @@ class RconApp(App):
                 self.query_one('#config', Button).press()
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == 'quit':
-            self.app.exit()
-        elif event.button.id == 'config':
-            result = await self.push_screen(
-                ConfigScreen(settings.host, settings.port, settings.password)
+        match event.button.id:
+            case 'quit':
+                self._quit_button_handler()
+            case 'config':
+                await self._config_button_handler()
+            case 'send':
+                await self._send_button_handler()
+
+    def _quit_button_handler(self):
+        self.app.exit()
+
+    async def _config_button_handler(self):
+        result = await self.push_screen(
+            ConfigScreen(settings.host, settings.port, settings.password)
+        )
+        if result:
+            self.query_one('#response', RichLog).write(
+                f'Configuration updated: {settings.host}:{settings.port}'
             )
-            if result:
-                self.query_one('#response', RichLog).write(
-                    f'Configuration updated: {settings.host}:{settings.port}'
-                )
-            return
 
-        if event.button.id != 'send':
-            return
-
+    async def _send_button_handler(self):
         if not settings.append:
             self.query_one('#response', RichLog).clear()
 
