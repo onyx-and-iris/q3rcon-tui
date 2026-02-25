@@ -8,7 +8,7 @@ from .settings import Settings
 from .writable import Writable
 
 
-class RconApp(App):
+class Q3RconTUI(App):
     CSS_PATH = 'q3rcon_tui.tcss'
 
     def __init__(self):
@@ -87,5 +87,5 @@ class RconApp(App):
 
 
 def main():
-    app = RconApp()
+    app = Q3RconTUI()
     app.run()
