@@ -3,8 +3,6 @@ import re
 from rich.table import Table
 from rich.text import Text
 
-from .settings import settings
-
 Renderable = Text | Table | str
 
 
@@ -34,14 +32,20 @@ class Writable:
         r'["](?P<info>.*?)["]$'
     )
 
+    def __init__(self, tui):
+        self._settings = tui._settings
+
     @staticmethod
     def remove_color_codes(s: str) -> str:
         return Writable.RE_COLOR_CODES.sub('', s)
 
     def parse(self, cmd, response: str, style=None) -> Renderable:
         response = self.remove_color_codes(response.removeprefix('print\n'))
-        if settings.raw:
+        if self._settings.raw:
             return Text(response, style=style)
+
+        if response in ['Bad rcon']:
+            return Text('Incorrect RCON password', style='#c73d4b')
 
         match cmd:
             case 'status':
@@ -66,9 +70,9 @@ class Writable:
         ]
         for column, justify in columns:
             table.add_column(column, justify=justify)
-        if not settings.min_status:
+        if not self._settings.min_status:
             table.add_column('Last', justify='center')
-        if settings.min_status:
+        if self._settings.min_status:
             table.add_column('IP', justify='center')
         else:
             table.add_column('IP:Port', justify='center')
@@ -76,7 +80,7 @@ class Writable:
             ('QPort', 'center'),
             ('Rate', 'center'),
         ]
-        if not settings.min_status:
+        if not self._settings.min_status:
             for column, justify in columns:
                 table.add_column(column, justify=justify)
 
@@ -93,7 +97,7 @@ class Writable:
                     m.group('guid'),
                     name,
                 ]
-                if settings.min_status:
+                if self._settings.min_status:
                     row.append(m.group('ip'))
                 else:
                     row.append(f'{m.group("ip")}:{m.group("port")}')

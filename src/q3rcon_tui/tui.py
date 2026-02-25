@@ -4,7 +4,7 @@ from textual.containers import Grid
 from textual.widgets import Button, Input, RichLog
 
 from .configscreen import ConfigScreen
-from .settings import settings
+from .settings import Settings
 from .writable import Writable
 
 
@@ -13,7 +13,8 @@ class RconApp(App):
 
     def __init__(self):
         super().__init__()
-        self.writable = Writable()
+        self._settings = Settings()
+        self.writable = Writable(self)
 
     def compose(self) -> ComposeResult:
         yield Grid(
@@ -49,16 +50,14 @@ class RconApp(App):
         self.app.exit()
 
     async def _config_button_handler(self):
-        result = await self.push_screen(
-            ConfigScreen(settings.host, settings.port, settings.password)
-        )
+        result = await self.push_screen(ConfigScreen(self))
         if result:
             self.query_one('#response', RichLog).write(
-                f'Configuration updated: {settings.host}:{settings.port}'
+                f'Configuration updated: {self._settings.host}:{self._settings.port}'
             )
 
     async def _send_button_handler(self):
-        if not settings.append:
+        if not self._settings.append:
             self.query_one('#response', RichLog).clear()
 
         cmd = self.query_one('#command', Input).value.strip()
@@ -68,7 +67,7 @@ class RconApp(App):
 
         try:
             async with Client(
-                settings.host, settings.port, settings.password
+                self._settings.host, self._settings.port, self._settings.password
             ) as client:
                 response = await client.send_command(cmd)
                 self.query_one('#response', RichLog).write(

@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Annotated, Type
 
-from loguru import logger
 from pydantic import (
     AfterValidator,
     AliasChoices,
@@ -20,6 +19,18 @@ def version_callback(value: bool) -> bool | None:
     return False
 
 
+def is_valid_host(host: str) -> str | None:
+    if not host:
+        raise ValueError('Host cannot be empty')
+    return host
+
+
+def is_valid_port(port: int) -> int | None:
+    if port < 1 or port > 65535:
+        raise ValueError('Port must be between 1 and 65535')
+    return port
+
+
 def is_valid_password(password: str) -> str | None:
     if len(password) < 8:
         raise ValueError('Password must be at least 8 characters long')
@@ -27,8 +38,8 @@ def is_valid_password(password: str) -> str | None:
 
 
 class Settings(BaseSettings):
-    host: str = 'localhost'
-    port: int = 28960
+    host: Annotated[str, AfterValidator(is_valid_host)] = 'localhost'
+    port: Annotated[int, AfterValidator(is_valid_port)] = 28960
     password: Annotated[str, AfterValidator(is_valid_password)] = ''
     append: bool = False
     min_status: bool = Field(
@@ -52,7 +63,7 @@ class Settings(BaseSettings):
         cli_prefix='',
         cli_parse_args=True,
         cli_implicit_flags=True,
-        validate_assignment=False,
+        validate_assignment=True,
         frozen=False,
     )
 
@@ -71,10 +82,3 @@ class Settings(BaseSettings):
             dotenv_settings,
             init_settings,
         )
-
-
-try:
-    settings = Settings()
-except ValueError as e:
-    logger.error(e)
-    raise SystemExit(1)

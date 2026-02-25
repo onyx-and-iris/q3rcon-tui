@@ -230,6 +230,29 @@ Button.error:focus {
     background: #434c5e;
 }
 
+#config-form Input.error {
+    border: solid #bf616a;
+    background: #3c2a2a;
+    color: #d08770;
+}
+
+#config-form Input.error:focus {
+    border: solid #d08770;
+    background: #4a2c2c;
+}
+
+.error-message {
+    height: 0;
+    color: #bf616a;
+    text-style: bold;
+    margin-top: 0;
+    margin-bottom: 1;
+}
+
+.error-message.visible {
+    height: 1;
+}
+
 #config-buttons {
     height: 3;
     width: 100%;
