@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import ValidationError
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
@@ -51,15 +53,13 @@ class ConfigScreen(ModalScreen[bool]):
         self._clear_field_errors()
 
         try:
-            new_host = self.query_one('#host-input', Input).value.strip() or 'localhost'
-            new_port = self.query_one('#port-input', Input).value
-            new_password = self.query_one('#password-input', Input).value
-
-            try:
-                new_port = int(new_port or '28960')
-            except ValueError:
-                self._show_field_error('port-input', 'Port must be a valid number')
-                return
+            new_host: str = (
+                self.query_one('#host-input', Input).value.strip() or 'localhost'
+            )
+            new_port: int | Literal[28960] = (
+                self.query_one('#port-input', Input).value or 28960
+            )
+            new_password: str = self.query_one('#password-input', Input).value
 
             self._settings.host = new_host
             self._settings.port = new_port
