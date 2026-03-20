@@ -66,6 +66,12 @@ Q3RCON_TUI_RAW=false
 Q3RCON_TUI_APPEND=false
 ```
 
+## Use
+
+Type in your Rcon command and press ENTER.
+
+Press `Ctrl+q` to exit from the application.
+
 ## Special Thanks
 
 - [lapetus-11](https://github.com/Iapetus-11) for writing the [aio-q3-rcon](https://github.com/Iapetus-11/aio-q3-rcon) package.
