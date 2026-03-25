@@ -10,6 +10,15 @@ from .writable import Writable
 
 class Q3RconTUI(App):
     CSS_PATH = 'q3rcon_tui.tcss'
+    CMD_CONFIG = {
+        'status': (2, 0.25, False),
+        'fast_restart': (3, 1, True),
+        'map_restart': (3, 1, True),
+        'map': (3, 1, True),
+        'map_rotate': (3, 1, True),
+    }
+    DEFAULT_TIMEOUT = 2
+    DEFAULT_FRAGMENT_READ_TIMEOUT = 0.25
 
     def __init__(self):
         super().__init__()
@@ -65,11 +74,20 @@ class Q3RconTUI(App):
             self.app.bell()
             return
 
+        timeout, fragment_read_timeout, interpret = Q3RconTUI.CMD_CONFIG.get(
+            cmd.split()[0].lower(),
+            (Q3RconTUI.DEFAULT_TIMEOUT, Q3RconTUI.DEFAULT_FRAGMENT_READ_TIMEOUT, False),
+        )
+
         try:
             async with Client(
-                self._settings.host, self._settings.port, self._settings.password
+                self._settings.host,
+                self._settings.port,
+                self._settings.password,
+                timeout=timeout,
+                fragment_read_timeout=fragment_read_timeout,
             ) as client:
-                response = await client.send_command(cmd)
+                response = await client.send_command(cmd, interpret=interpret)
                 self.query_one('#response', RichLog).write(
                     self.writable.parse(cmd, response)
                 )
