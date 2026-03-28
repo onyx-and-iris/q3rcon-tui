@@ -4,6 +4,7 @@ from textual.containers import Grid
 from textual.widgets import Button, Input, RichLog
 
 from .configscreen import ConfigScreen
+from .history import CommandHistory
 from .settings import Settings
 from .writable import Writable
 
@@ -24,6 +25,8 @@ class Q3RconTUI(App):
         super().__init__()
         self._settings = Settings()
         self.writable = Writable(self)
+        self._command_history = CommandHistory()
+        self._history_index = None
 
     def compose(self) -> ComposeResult:
         yield Grid(
@@ -40,9 +43,33 @@ class Q3RconTUI(App):
         if self.screen and isinstance(self.screen, ConfigScreen):
             return
 
+        command_input = self.query_one('#command', Input)
         match event.key:
-            case 'enter' if self.query_one('#command', Input).has_focus:
+            case 'enter' if command_input.has_focus:
+                value = command_input.value.strip()
+                if value:
+                    self._command_history.add(value)
+                self._history_index = None
                 self.query_one('#send', Button).press()
+            case 'up' if command_input.has_focus:
+                if self._command_history:
+                    if self._history_index is None:
+                        self._history_index = len(self._command_history) - 1
+                    elif self._history_index > 0:
+                        self._history_index -= 1
+                    command_input.value = self._command_history.get_previous(
+                        self._history_index
+                    )
+            case 'down' if command_input.has_focus:
+                if self._command_history and self._history_index is not None:
+                    if self._history_index < len(self._command_history) - 1:
+                        self._history_index += 1
+                        command_input.value = self._command_history.get_next(
+                            self._history_index
+                        )
+                    else:
+                        self._history_index = None
+                        command_input.value = ''
             case 'f2':
                 self.query_one('#config', Button).press()
 
